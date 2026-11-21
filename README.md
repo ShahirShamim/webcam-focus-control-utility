@@ -4,6 +4,12 @@ A tiny Windows app for manually controlling the focus of a USB webcam. It needs 
 
 Built for and tested with an **A4tech FHD 1080P PC Camera**. It should work with any UVC webcam whose driver exposes a focus control.
 
+## Download
+
+**[Download FocusControl.exe](https://github.com/ShahirShamim/webcam-focus-control-utility/releases/latest/download/FocusControl.exe)** (latest release, about 17 KB). It doesn't need installing; just run it.
+
+The exe isn't code-signed, so Windows SmartScreen may warn you the first time you run it. Click **More info → Run anyway**, or build it yourself (see [Build](#build)). For checksums and older versions, see [all releases](https://github.com/ShahirShamim/webcam-focus-control-utility/releases).
+
 ## Features
 
 - Pick a camera from the list (cameras without a focus control are labelled).
