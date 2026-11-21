@@ -43,6 +43,18 @@ You can use `--set` from a shortcut or a startup task to restore your preferred 
 
 ## How it works
 
-It uses DirectShow's `IAMCameraControl` (`CameraControl_Focus`) on the camera's capture filter. That is the same control as the focus slider on the driver's own settings page. The camera doesn't need to be streaming to this app, so you can adjust focus while another app shows the video.
+Most USB webcams follow the **UVC** (USB Video Class) standard. UVC defines camera controls such as focus, exposure and zoom that the camera itself carries out. Windows makes these controls available through **DirectShow**. The app is one C# file (`FocusControl.cs`) that talks to DirectShow directly through COM, so it needs no extra libraries.
 
-Some cameras go back to autofocus when they are unplugged or the PC restarts.
+1. **Finding cameras.** It uses DirectShow's system device enumerator to list every video input device. For each one, it reads the friendly name (such as "A4tech FHD 1080P PC Camera") and opens the device's capture filter.
+2. **Getting the focus control.** It asks each filter for the `IAMCameraControl` interface and calls `GetRange(CameraControl_Focus)`. This returns the camera's minimum, maximum, step size and default focus values, and whether the camera supports auto and manual modes. Cameras that return no range are fixed-focus, and the list labels them "(no focus control)".
+3. **Setting focus.** Moving the slider calls `Set(CameraControl_Focus, value, Manual)`. Ticking Autofocus calls `Set(..., Auto)`. These are the same calls the focus slider on the driver's own settings page makes.
+4. **Live autofocus readout.** While autofocus is on, a timer calls `Get(CameraControl_Focus)` four times a second. The camera reports the focus position its autofocus has chosen, and the app shows that number and moves the slider to match.
+5. **Locking focus.** When you untick Autofocus, the app reads the current position first and switches to manual at exactly that value, so the picture doesn't jump.
+
+The app never streams video. It only sends control commands, so the camera can keep running in Teams, Zoom, OBS or the Camera app while you adjust focus there.
+
+**Limitations**
+
+- Focus values are camera-specific numbers (1–1023 on the A4tech), not distances. A higher number doesn't mean the same thing on every camera.
+- Some cameras go back to autofocus when they are unplugged or the PC restarts. You can run `FocusControl.exe --set 0 <value>` from a startup shortcut to restore your setting.
+- Built-in laptop cameras are often fixed-focus, so they show no focus control.
